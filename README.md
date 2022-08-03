@@ -46,3 +46,16 @@ npm run build
 ```sh
 npm run lint
 ```
+
+### Run component tests
+
+```sh
+npm run test:component
+```
+
+
+### Run end 2 end tests
+
+```sh
+npm run test:e2e
+```
