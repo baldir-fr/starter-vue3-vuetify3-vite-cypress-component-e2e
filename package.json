@@ -8,7 +8,9 @@
     "build-only": "vite build",
     "serve": "vite preview",
     "type-check": "vue-tsc --noEmit",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "test:component": "cypress run --component",
+    "test:e2e": "cypress run --e2e"
   },
   "dependencies": {
     "@mdi/font": "^7.0.96",
