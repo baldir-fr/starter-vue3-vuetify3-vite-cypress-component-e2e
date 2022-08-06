@@ -1672,6 +1672,21 @@ describe("<ATextField>", () => {
 <style></style>
 ```
 
+## Less verbose test reports
+
+`package.json`
+
+```json
+{
+  // ...
+  "scripts": {
+    // ...
+    "test:component": "cypress run --quiet --component"
+  },
+  // ...
+}
+```
+
 <!-- TODO : after a break
 - add custom cy.mount for vuetify (add surrounding component with <v-app>): https://docs.cypress.io/guides/component-testing/custom-mount-vue
   - fix webstorm

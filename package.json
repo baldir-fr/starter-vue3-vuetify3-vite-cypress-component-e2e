@@ -9,7 +9,7 @@
     "serve": "vite preview",
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "test:component": "cypress run --component",
+    "test:component": "cypress run --quiet --component",
     "test:e2e": "cypress run --e2e"
   },
   "dependencies": {
