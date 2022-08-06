@@ -1687,10 +1687,11 @@ describe("<ATextField>", () => {
 }
 ```
 
+
+## TODO
+
 <!-- TODO : after a break
-- add custom cy.mount for vuetify (add surrounding component with <v-app>): https://docs.cypress.io/guides/component-testing/custom-mount-vue
-  - fix webstorm
-- quiet mode for component tests
+- fix webstorm cypress integration
 - test a few more complex components (with animation, labels, tables ...)
   - maybe create a mini find and interact cypress commands as helpers for common uses
 - cypress watch mode : https://goodvuetests.substack.com/p/chapter-312-basic-test-setup-with
@@ -1705,3 +1706,5 @@ describe("<ATextField>", () => {
 - tweak config files step by step for IDE best support
 
 -->
+
+
