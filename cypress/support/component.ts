@@ -19,7 +19,7 @@ import "./commands";
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-import {mount} from "cypress/vue";
+import { mount } from "cypress/vue";
 
 // Augment the Cypress namespace to include type definitions for
 // your custom command.
@@ -36,24 +36,23 @@ declare global {
 }
 
 import vuetify from "@/plugins/vuetify";
-import {loadFonts} from '@/plugins/webfontloader'
+import { loadFonts } from "@/plugins/webfontloader";
 
-loadFonts()
+loadFonts();
 
 Cypress.Commands.add("mount", (MountedComponent, options) => {
+  const root = document.getElementById("__cy_root");
+  // Vuetify styling
+  if (!root.classList.contains("v-application")) {
+    root.classList.add("v-application");
+  }
+  // Vuetify selector used for popup elements to attach to the DOM
+  root.setAttribute("data-app", "true");
 
-    const root = document.getElementById("__cy_root");
-    // Vuetify styling
-    if (!root.classList.contains("v-application")) {
-        root.classList.add("v-application");
-    }
-    // Vuetify selector used for popup elements to attach to the DOM
-    root.setAttribute('data-app', 'true');
-
-    return mount(MountedComponent, {
-        global: {
-            plugins: [vuetify]
-        },
-        ...options, // To override values for specific tests
-    });
+  return mount(MountedComponent, {
+    global: {
+      plugins: [vuetify],
+    },
+    ...options, // To override values for specific tests
+  });
 });

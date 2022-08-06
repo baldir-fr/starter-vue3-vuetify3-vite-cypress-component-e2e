@@ -1316,7 +1316,7 @@ Add `id="__cy_root"` on the root `<div>`.
 
 `cypress/support/component.ts`
 
-Create a custom mount function that surrounds the mounted component with a vuetify app wrapper. It also adds vuetify as plugin.
+Create a custom mount function that surrounds the mounted component with a vuetify app wrapper. It also adds vuetify as plugin. (credits: https://github.com/elevatebart/cy-ct-vuetify)
 
 ```ts
 // ***********************************************************
@@ -1507,3 +1507,154 @@ Tests should run successfully and be pretty fast.
 
 ```
 
+
+## Configure App.vue with vuetify
+
+Now that we now we can test components, we can convert our app so it can use vuetify components.
+
+`src/main.ts`
+
+```ts
+import { createApp } from "vue";
+import { createPinia } from "pinia";
+import App from "./App.vue";
+import router from "./router";
+import "@/assets/main.css";
+import vuetify from '@/plugins/vuetify'
+import { loadFonts } from './plugins/webfontloader'
+
+loadFonts()
+
+const app = createApp(App);
+
+app.use(createPinia());
+app.use(router);
+app.use(vuetify);
+
+app.mount("#app");
+```
+
+`src/App.vue`
+
+```html
+<script setup lang="ts">
+  import {RouterLink, RouterView} from "vue-router";
+  import HelloWorld from "./components/HelloWorld.vue";
+  import ATextField from "@/components/ATextField.vue";
+</script>
+
+<template>
+  <!--
+  v-app root component wrapper is required for children components
+  that relies on vuetify
+  -->
+  <v-app>
+    <header>
+      <div class="wrapper">
+        <HelloWorld msg="You did it!"/>
+        <!-- a component that relies on vuetify -->
+        <ATextField/>
+        <nav>
+          <RouterLink to="/">Home</RouterLink>
+          <RouterLink to="/about">About</RouterLink>
+        </nav>
+      </div>
+    </header>
+    <RouterView/>
+  </v-app>
+</template>
+
+<style></style>
+```
+
+Let's cleanup the style so it does not clash with vuetify.
+
+`src/assets/base.css`
+
+```css
+```
+
+`src/assets/main.css`
+```css
+@import "./base.css";
+```
+
+`src/components/HelloWorld.vue`
+
+```html
+<script setup lang="ts">
+defineProps<{
+  msg: string;
+}>();
+</script>
+
+<template>
+  <p>Hello {{ msg }}</p>
+</template>
+
+<style scoped></style>
+```
+
+`src/views/HomeView.vue`
+
+```html
+<template>
+  <main>
+    Home
+  </main>
+</template>
+```
+
+`src/views/AboutView.vue`
+
+```
+<template>
+  <main>
+    About
+  </main>
+</template>
+```
+
+Let's remove files:
+- `src/stores/counter.ts`
+- `src/components/TheWelcome.vue`
+- `src/components/WelcomeItem.vue`
+- `src/components/icons`
+- `src/assets/logo.svg`
+
+Verify everything still compiles / lints / tests / runs.
+
+
+```shell
+npm run build-only
+npm run build
+npm run serve
+npm run preview
+# Check in your browser : site should work (and no errors or warnings in the console)
+npm run dev
+# Check in your browser : site should work (and no errors or warnings in the console)
+npm run test:component
+# Should pass with no warning logs
+npm run test:e2e
+npm run type-check
+npm run lint
+```
+
+<!-- TODO : after a break
+- add custom cy.mount for vuetify (add surrounding component with <v-app>): https://docs.cypress.io/guides/component-testing/custom-mount-vue
+  - fix webstorm
+- quiet mode for component tests
+- test a few more complex components (with animation, labels, tables ...)
+  - maybe create a mini find and interact cypress commands as helpers for common uses
+- cypress watch mode : https://goodvuetests.substack.com/p/chapter-312-basic-test-setup-with
+- e2e tests against the local application
+- create some package.json scripts
+- update readme.md with new scripts and useful information
+- setup CI
+- update readme.md with new scripts and useful information
+- add testing library support
+- assess if vitest may still be needed for unit testing (store, services ...)
+- build some starter showcase for common vuetify testing scenarios
+- tweak config files step by step for IDE best support
+
+-->

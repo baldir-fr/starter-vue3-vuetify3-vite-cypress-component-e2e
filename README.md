@@ -4,6 +4,10 @@ Starter & showcase for cohabitation of VueJS 3, Vuetify 3, Vite,  Cypress as E2E
 In the [Making-of](making-of.md), you will see hom to reproduce the full setup from scratch.
 It might be useful if some dependencies are to be updated or as a sample repository to reproduce an issue.
 
+**Credits**
+- https://github.com/elevatebart/cy-ct-vuetify
+- https://css-tricks.com/testing-vue-components-with-cypress/
+
 ## Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
