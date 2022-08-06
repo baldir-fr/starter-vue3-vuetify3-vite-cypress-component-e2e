@@ -1270,49 +1270,6 @@ We need keep this `Chainable` interface to add `mount` function to Cypress.
 
 It allows us to write things such as `cy.mount(HelloWorld);` in our component tests.
 
-```ts
-// ***********************************************************
-// This example support/component.ts is processed and
-// loaded automatically before your test files.
-//
-// This is a great place to put global configuration and
-// behavior that modifies Cypress.
-//
-// You can change the location of this file or turn off
-// automatically serving support files with the
-// 'supportFile' configuration option.
-//
-// You can read more here:
-// https://on.cypress.io/configuration
-// ***********************************************************
-
-// Import commands.js using ES2015 syntax:
-import "./commands";
-
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
-
-import { mount } from "cypress/vue";
-
-// Augment the Cypress namespace to include type definitions for
-// your custom command.
-// Alternatively, can be defined in cypress/support/component.d.ts
-// with a <reference path="./component" /> at the top of your spec.
-/* eslint-disable @typescript-eslint/no-namespace */
-declare global {
-    namespace Cypress {
-        interface Chainable {
-            mount: typeof mount;
-        }
-    }
-}
-
-Cypress.Commands.add("mount", mount);
-
-// Example use:
-// cy.mount(MyComponent)
-
-```
 
 ```shell
 npm run lint
@@ -1328,14 +1285,38 @@ npm i --save-dev @types/jest
 
 We should now have support and completion for implicit imports of `describe`, `it` ... in `cypress/component/HelloWorld.cy.ts`.
 
-## let's test a single vuetify component
+## Setup vuetify for component tests
+
 
 We now want to check cypress capability to test a single vuetify component (still not added to the App).
 
 The lines below are a try to create a special mount command for components using vuetify 3 and vue 3
 It does not work yet.
 
+
+`cypress/support/component-index.html`
+
+Add `id="__cy_root"` on the root `<div>`.
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Components App</title>
+  </head>
+  <body>
+    <div id="__cy_root"
+         data-cy-root></div>
+  </body>
+</html>
+```
+
 `cypress/support/component.ts`
+
+Create a custom mount function that surrounds the mounted component with a vuetify app wrapper. It also adds vuetify as plugin.
 
 ```ts
 // ***********************************************************
@@ -1359,8 +1340,7 @@ import "./commands";
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-import { mount } from "cypress/vue";
-
+import {mount} from "cypress/vue";
 
 // Augment the Cypress namespace to include type definitions for
 // your custom command.
@@ -1376,52 +1356,154 @@ declare global {
   }
 }
 
-// Example use:
-// cy.mount(MyComponent)
+import vuetify from "@/plugins/vuetify";
+import {loadFonts} from '@/plugins/webfontloader'
 
-import {createVuetify} from "vuetify";
-import * as components from 'vuetify/components'
-import * as directives from "vuetify/directives";
-const vuetify = createVuetify({directives, components})
+loadFonts()
 
 Cypress.Commands.add("mount", (MountedComponent, options) => {
-  // get the element that our mounted component will be injected into
-  const root = document.getElementById("__cy_root");
 
-  // add the v-application class that allows Vuetify styles to work
-  if (!root.classList.contains("v-application")) {
-    root.classList.add("v-application");
-  }
+    const root = document.getElementById("__cy_root");
+    // Vuetify styling
+    if (!root.classList.contains("v-application")) {
+        root.classList.add("v-application");
+    }
+    // Vuetify selector used for popup elements to attach to the DOM
+    root.setAttribute('data-app', 'true');
 
-  // add the data-attribute — Vuetify selector used for popup elements to attach to the DOM
-  root.setAttribute('data-app', 'true');
+    return mount(MountedComponent, {
+        global: {
+            plugins: [vuetify]
+        },
+        ...options, // To override values for specific tests
+    });
+});
+```
 
-  return mount(MountedComponent, {
-    global: {
-      plugins: [vuetify],
-    },
-    ...options,
+## let's test a single vuetify component
+
+
+`cypress/component/ATextField.cy.ts`
+
+Create a new component test.
+This time, the tested component will rely on a `<v-text-field>`, whinch depends on vuetify.
+
+```ts
+/// <reference types="cypress" />
+import ATextField from "@/components/ATextField.vue";
+
+describe("<ATextField>", () => {
+  it("mounts", () => {
+    cy.mount(ATextField);
   });
 });
 ```
 
+`src/components/ATextField.vue`
+
+The component to test. It uses `<v-text-field>` that is a component from vuetify.
+
+```html
+<script setup lang="ts"></script>
+
+<template>
+  <v-text-field></v-text-field>
+</template>
+
+<style></style>
+```
+
+```shell
+npm run test:component
+```
+
+Tests should run successfully and be pretty fast.
+
+```
+
+> starter-vue3-vuetify3-vite-cypress-component-e2e@0.0.0 test:component
+> cypress run --component
 
 
+====================================================================================================
+
+  (Run Starting)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Cypress:        10.4.0                                                                         │
+  │ Browser:        Electron 102 (headless)                                                        │
+  │ Node Version:   v16.14.2 (/Users/marco/.volta/tools/image/node/16.14.2/bin/node)               │
+  │ Specs:          2 found (ATextField.cy.ts, HelloWorld.cy.ts)                                   │
+  │ Searched:       **/*.cy.{js,jsx,ts,tsx}                                                        │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
 
 
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  ATextField.cy.ts                                                                (1 of 2)
 
-<!-- TODO : after a break
-- add vuetify
-- add custom cy.mount for vuetify (add surrounding component with <v-app>): https://docs.cypress.io/guides/component-testing/custom-mount-vue
-  - fix webstorm 
-- create some package.json scripts
-- update readme.md with new scripts and useful information
-- setup CI
-- update readme.md with new scripts and useful information
-- add testing library support
-- assess if vitest may still be needed for unit testing (store, services ...)
-- build some starter showcase for common vuetify testing scenarios
-- tweak config files step by step for IDE best support
 
--->
+  <ATextField>
+    ✓ mounts (70ms)
+
+
+  1 passing (86ms)
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        1                                                                                │
+  │ Passing:      1                                                                                │
+  │ Failing:      0                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  0                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     0 seconds                                                                        │
+  │ Spec Ran:     ATextField.cy.ts                                                                 │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  HelloWorld.cy.ts                                                                (2 of 2)
+
+
+  <HelloWorld>
+    ✓ mounts (57ms)
+
+
+  1 passing (73ms)
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        1                                                                                │
+  │ Passing:      1                                                                                │
+  │ Failing:      0                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  0                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     0 seconds                                                                        │
+  │ Spec Ran:     HelloWorld.cy.ts                                                                 │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+====================================================================================================
+
+  (Run Finished)
+
+
+       Spec                                              Tests  Passing  Failing  Pending  Skipped  
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ✔  ATextField.cy.ts                          81ms        1        1        -        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✔  HelloWorld.cy.ts                          69ms        1        1        -        -        - │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+    ✔  All specs passed!                        150ms        2        2        -        -        -  
+
+```
 
