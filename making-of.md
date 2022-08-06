@@ -1640,6 +1640,38 @@ npm run type-check
 npm run lint
 ```
 
+## A little more advanced test
+
+`cypress/component/ATextField.cy.ts`
+
+```ts
+/// <reference types="cypress" />
+import ATextField from "@/components/ATextField.vue";
+
+describe("<ATextField>", () => {
+  it("mounts",  () => {
+    cy.mount(ATextField);
+    cy.get('[data-cy="a-text-field"]').click()
+    cy.get('[data-cy="a-text-field"]').type("Hello")
+  });
+});
+```
+
+`src/components/ATextField.vue`
+
+```html
+<script setup lang="ts"></script>
+
+<template>
+  <v-text-field
+      label="Label"
+      data-cy="a-text-field"
+  ></v-text-field>
+</template>
+
+<style></style>
+```
+
 <!-- TODO : after a break
 - add custom cy.mount for vuetify (add surrounding component with <v-app>): https://docs.cypress.io/guides/component-testing/custom-mount-vue
   - fix webstorm
