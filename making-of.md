@@ -213,7 +213,7 @@ Since there is nothing tested, it just verifies the minimal configuration works.
 
 ![](docs/assets/035-.png)
 
-## Premier test de composant avec cypress component runner
+## First component test with cypress component runner
 
 https://docs.cypress.io/guides/component-testing/mounting-vue
 
